@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <link rel="alternate icon" type="image/png" href="/img/favicon.png">
+    <title>时之雨的博客 | 逝者如斯，不舍昼夜</title>
+    
+<link rel="stylesheet" href="/css/reset.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<link rel="stylesheet" href="/css/markdown.css">
+
+    
+<link rel="stylesheet" href="/css/fonts.css">
+
+<meta name="generator" content="Hexo 6.1.0"></head>
+    <body>
+        <div class="paper">
+            <div class="paper-main">
+                
+                    <div class="post-header">
+    <a class="logo" href="/">时之雨的博客</a>
+    <a class="go-home" href="/">
+        <svg width="8" height="14" viewBox="0 0 8 14">
+            <path d="M7 1L1 7l6 6" stroke="#000" stroke-width="2" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </a>
+</div>
+                
+                <div class="post-main">
+
+    
+        <div class="post-main-title">
+            高精度加法&amp;乘法
+        </div>
+        <div class="post-meta">
+            2022-04-08
+        </div>
+    
+
+    <div class="post-md">
+        <h1 id="高精度加法-amp-乘法"><a href="#高精度加法-amp-乘法" class="headerlink" title="高精度加法&amp;乘法"></a>高精度加法&amp;乘法</h1><blockquote>
+<p>做题时常常遇到数值异常庞大的高精度题型，即使long long也无法存储，这时我们只能用模拟的方式，将数据存储在string中。</p>
+</blockquote>
+<h2 id="高进度加法："><a href="#高进度加法：" class="headerlink" title="高进度加法："></a>高进度加法：</h2><ul>
+<li><p>步骤：</p>
+<ul>
+<li><p>首先搞定输入：</p>
+</li>
+<li><p>由于是加法，所以输入的数据应该非常巨大，所以我们应该用string来存储：</p>
+</li>
+<li><p>```c++<br>string s1,s2;<br>int a[100001],b[100001],c[100001];<br>//a,b作为两个待加数，c作为结果<br>int main()<br>{</p>
+<pre><code>cin &gt;&gt; s1 &gt;&gt; s2;    //用来存储输入的数据
+</code></pre>
+<p>}</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+ 小技巧：利用数组的第一项来记录数组的长度，这样可以省出两个变量，但是记得在调用的时候for要从1开始。</span><br><span class="line"></span><br><span class="line">  ```c++</span><br><span class="line">  a[0] = s1.size(); b[0] = s2.size();</span><br></pre></td></tr></table></figure></li>
+<li><p>之后我们来将输入的数据(string)转换成真实的数字数据：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= a[<span class="number">0</span>]; i++)</span><br><span class="line">    a[i] = s1[a[<span class="number">0</span>]-i] - <span class="string">&quot;0&quot;</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= b[<span class="number">0</span>]; i++)</span><br><span class="line">    b[i] = s2[b[<span class="number">0</span>]-i] - <span class="string">&quot;0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>具体的实现机理为：</p>
+<p>对于当前的位，用当前字符的ASCII值减去0的ASCII的值实现真实的数字值，再强行转换成int类型，将值赋给a,b两个数组中，完整的处理数据。</p>
+</blockquote>
+</li>
+<li><p>转换好数据，我们接着实行加法运算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> len = <span class="built_in">max</span>(a[<span class="number">0</span>],b[<span class="number">0</span>]);</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= len; i++) &#123;		<span class="comment">//记得用0作为数组的长度</span></span><br><span class="line">		c[i] = a[i]+b[i];		<span class="comment">//对位加对位，不用担心其中的一个数组的长度，已经初始化为0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>数据存好了，但是可以想到，有的位大于十，于是接着我们来实现进位操作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= len; i++) &#123;</span><br><span class="line">    c[i] = a[i]+b[i];</span><br><span class="line">    <span class="keyword">if</span>(c[i] &gt; <span class="number">9</span>) &#123;</span><br><span class="line">        c[i+<span class="number">1</span>] += c[i]/<span class="number">10</span>;</span><br><span class="line">        c[i] %= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>这时候我们可以想到，c 数组中仍然有未存储的数据，其当前为0，所以我们肯定不能弃之不管。因此我们可以有如下操作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(c[len] == <span class="number">0</span> &amp;&amp; len &gt; <span class="number">1</span>)</span><br><span class="line">    len--;</span><br><span class="line"><span class="comment">//也可以写成：</span></span><br><span class="line"><span class="keyword">for</span>(len; len &gt; <span class="number">1</span> &amp;&amp; c[len] == <span class="number">0</span>; len--);</span><br></pre></td></tr></table></figure></li>
+<li><p>最后的最后：输出</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = len; i &gt;= <span class="number">1</span>; i--) &#123;</span><br><span class="line">    cout &lt;&lt; c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>以下为完整代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line">string s1,s2;</span><br><span class="line"><span class="type">int</span> a[<span class="number">10000001</span>],b[<span class="number">10000001</span>],c[<span class="number">10000001</span>];</span><br><span class="line"><span class="type">int</span> len;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cin &gt;&gt; s1 &gt;&gt; s2;</span><br><span class="line">    <span class="comment">//搞定输入，存储数据</span></span><br><span class="line">    a[<span class="number">0</span>] = s1.<span class="built_in">size</span>(); b[<span class="number">0</span>] = s2.<span class="built_in">size</span>();</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= a[<span class="number">0</span>]; i++)</span><br><span class="line">        a[i] = s1[a[<span class="number">0</span>]-i] - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= b[<span class="number">0</span>]; i++)</span><br><span class="line">        b[i] = s2[b[<span class="number">0</span>]-i] - <span class="string">&#x27;0&#x27;</span>;    <span class="comment">//首先利用字符串相减的性质，将0的ASCII和当前数字相减</span></span><br><span class="line">        <span class="comment">//所得到的为数字的真实数值，之后强制转换成int，得到答案。</span></span><br><span class="line"></span><br><span class="line">    len = <span class="built_in">max</span>(a[<span class="number">0</span>],b[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= len; i++) &#123;</span><br><span class="line">    	c[i] = a[i]+b[i];</span><br><span class="line">        <span class="keyword">if</span>(c[i] &gt; <span class="number">9</span>) &#123;</span><br><span class="line">            c[i+<span class="number">1</span>] += c[i]/<span class="number">10</span>;      <span class="comment">//注意次序!</span></span><br><span class="line">            c[i] %= <span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(c[len] == <span class="number">0</span> &amp;&amp; len &gt; <span class="number">1</span>)</span><br><span class="line">        len--;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = len; i &gt;= <span class="number">1</span>; i--)</span><br><span class="line">        cout &lt;&lt; c[i];</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="高精度乘法"><a href="#高精度乘法" class="headerlink" title="高精度乘法"></a>高精度乘法</h2><ul>
+<li><p>步骤：</p>
+<ul>
+<li><p>与加法类似，首先搞定输入：</p>
+<ul>
+<li><p>同样是采用字符串转换成int进行存储：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cin &gt;&gt; s1 &gt;&gt; s2;</span><br><span class="line"></span><br><span class="line">a[<span class="number">0</span>] = s1.<span class="built_in">size</span>(); b[<span class="number">0</span>] = s2.<span class="built_in">size</span>();</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= a[<span class="number">0</span>]; i++)</span><br><span class="line">        a[i] = s1[a[<span class="number">0</span>]-i] - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= b[<span class="number">0</span>]; i++)</span><br><span class="line">        b[i] = s2[b[<span class="number">0</span>]-i] - <span class="string">&#x27;0&#x27;</span>; </span><br></pre></td></tr></table></figure></li>
+<li><p>之后我们进行乘法运算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= a[<span class="number">0</span>]; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> j = <span class="number">1</span>; j &lt;= b[<span class="number">0</span>]; j++) &#123;</span><br><span class="line">        c[i+j<span class="number">-1</span>] += a[i]*b[j];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里要注意：由于乘法的特性，我们需要将一位和另一数组的所有位相乘，所以显然两个for是最佳选择。两个for的限制条件均为对应该数组的长度</p>
+</blockquote>
+</li>
+<li><p><img src="C:\Users\Lenovo\Desktop\12.png" alt="12"></p>
+</li>
+<li><p>之后我们对计算好了的c数组进行进位操作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">len = a[<span class="number">0</span>]+b[<span class="number">0</span>];</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= len; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span>(c[i] &gt; <span class="number">9</span>) &#123;</span><br><span class="line">        c[i+<span class="number">1</span>] += c[i]/<span class="number">10</span>;</span><br><span class="line">        c[i] %= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>考虑一下，进位该进多少位？</p>
+<p>应该进a[0] + b[0]位，例如两个最大二位数99*99=9801(4位)</p>
+</blockquote>
+</li>
+<li><p>之后进行清零操作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(c[len] == <span class="number">0</span> &amp;&amp; len &gt; <span class="number">1</span>)</span><br><span class="line">    len--;</span><br></pre></td></tr></table></figure></li>
+<li><p>然后输出：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= len; i++) &#123;</span><br><span class="line">    cout &lt;&lt; c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>完整代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line">string s1,s2;</span><br><span class="line"><span class="type">int</span> a[<span class="number">10000001</span>],b[<span class="number">10000001</span>],c[<span class="number">10000001</span>];</span><br><span class="line"><span class="type">int</span> len;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cin &gt;&gt; s1 &gt;&gt; s2;</span><br><span class="line">    <span class="comment">//搞定输入，存储数据</span></span><br><span class="line">    a[<span class="number">0</span>] = s1.<span class="built_in">size</span>(); b[<span class="number">0</span>] = s2.<span class="built_in">size</span>();</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= a[<span class="number">0</span>]; i++)</span><br><span class="line">        a[i] = s1[a[<span class="number">0</span>]-i] - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= b[<span class="number">0</span>]; i++)</span><br><span class="line">        b[i] = s2[b[<span class="number">0</span>]-i] - <span class="string">&#x27;0&#x27;</span>;    <span class="comment">//首先利用字符串相减的性质，将0的ASCII和当前数字相减</span></span><br><span class="line">        <span class="comment">//所得到的为数字的真实数值，之后强制转换成int，得到答案。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= a[<span class="number">0</span>]; i++) &#123;    <span class="comment">//存储数据</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> j = <span class="number">1</span>; j &lt;= b[<span class="number">0</span>]; j++) &#123;</span><br><span class="line">            c[i+j<span class="number">-1</span>] += a[i]*b[j];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    len = a[<span class="number">0</span>]+b[<span class="number">0</span>];    <span class="comment">//两个n位数相乘 乘积最多是n+n位</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= len; i++) &#123;     <span class="comment">//进位</span></span><br><span class="line">        <span class="keyword">if</span>(c[i] &gt; <span class="number">9</span>) &#123;</span><br><span class="line">            c[i+<span class="number">1</span>] += c[i]/<span class="number">10</span>;      <span class="comment">//注意次序!</span></span><br><span class="line">            c[i] %= <span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(c[len] == <span class="number">0</span> &amp;&amp; len &gt; <span class="number">1</span>)</span><br><span class="line">        len--;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = len; i &gt;= <span class="number">1</span>; i--)</span><br><span class="line">        cout &lt;&lt; c[i];</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+    </div>
+
+</div>
+                <div class="footer">
+    <span>Copyright © 2022 时之雨的博客</span>
+    <span> Welcome to my blog <a target="_blank" href="https://mytimeflows.life">Modermjaymi</a></span>
+</div>
+
+
+<link rel="stylesheet" href="/css/a11y-dark.min.css">
+
+
+<script src="/js/highlight.min.js"></script>
+
+
+<script src="/js/highlightjs-line-numbers.js"></script>
+
+
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
+
+            </div>
+        </div>
+    </body>
+</html>
